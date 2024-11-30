@@ -1,5 +1,5 @@
 declare const DeviceMotionEvent: {
-  requestPermission: () => Promise<PermissionState>;
+  requestPermission?: () => Promise<PermissionState>;
 };
 
 type Handler = (event: DeviceMotionEvent) => void;
@@ -10,21 +10,25 @@ export class DeviceMotionHandler {
     this.#onShake = params.onShake;
   }
 
-  async requestPermission(): Promise<void> {
-    if (!DeviceMotionEvent?.requestPermission) return;
+  isNeededPermission(): boolean {
+    return typeof DeviceMotionEvent.requestPermission === 'function';
+  }
+  async requestPermission(): Promise<boolean> {
+    if (!DeviceMotionEvent.requestPermission) return true;
 
     try {
       const permissionState = await DeviceMotionEvent.requestPermission();
       if (permissionState === 'granted') {
         this.startListening();
+        return true;
       } else {
         alert('加速度センサーの許可が得られませんでした');
-        console.log(permissionState);
       }
     } catch (error) {
       console.error(error);
       alert('デバイスモーション権限の取得に失敗しました');
     }
+    return false;
   }
 
   startListening() {

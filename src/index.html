@@ -49,23 +49,26 @@
 
     <dialog
       id="photoModal"
-      class="bg-transparent text-center grid grod-col-1 gap-2"
+      class="bg-transparent text-center"
+      aria-labelledby="capturedPhoto"
     >
-      <img
-        id="capturedPhoto"
-        alt="撮影した写真"
-        src=""
-        class="w-full rounded-md"
-        width="640"
-        height="480"
-      />
-      <div>
-        <button
-          id="retakePhoto"
-          class="px-2 py-1 bg-red-600 text-white rounded-md"
-        >
-          写真を撮り直す
-        </button>
+      <div class="grid gap-4">
+        <img
+          id="capturedPhoto"
+          alt="撮影した写真"
+          src=""
+          class="w-full rounded-md"
+          width="640"
+          height="480"
+        />
+        <div>
+          <button
+            id="retakePhoto"
+            class="px-2 py-1 bg-red-600 text-white rounded-md"
+          >
+            写真を撮り直す
+          </button>
+        </div>
       </div>
     </dialog>
   </body>

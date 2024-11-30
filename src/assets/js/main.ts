@@ -26,35 +26,43 @@ const ctx = (() => {
   return context;
 })();
 
-const camera = new Camera(video, start);
+const camera = new Camera(video);
 const photoModal = new PhotoModal(modal, capturedPhoto);
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
     debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
 
     if (totalAcceleration > shakeThreshold) {
-      const photoData = camera.capture(ctx.canvas, ctx);
+      const photoData = camera.capture(ctx);
       photoModal.show(photoData);
     }
   },
 });
 
+if (!deviceMotionHandler.isNeededPermission()) {
+  deviceMotion.style.display = 'none';
+}
+
 start.addEventListener('click', async () => {
-  await camera.start();
+  const bool = await camera.start();
+  if (bool) {
+    start.style.display = 'none';
+  }
 });
 
 deviceMotion.addEventListener('click', async () => {
-  await deviceMotionHandler.requestPermission();
+  const bool = await deviceMotionHandler.requestPermission();
+  if (bool) {
+    deviceMotion.style.display = 'none';
+  }
 });
 
 capture.addEventListener('click', () => {
-  const photoData = camera.capture(ctx.canvas, ctx);
+  const photoData = camera.capture(ctx);
 
-  if (photoData !== 'data:,') {
-    photoModal.show(photoData);
-    deviceMotionHandler.stopListening();
-    camera.stop();
-  }
+  photoModal.show(photoData);
+  deviceMotionHandler.stopListening();
+  camera.stop();
 });
 
 retakeButton.addEventListener('click', () => {

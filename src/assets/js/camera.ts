@@ -1,26 +1,24 @@
 export class Camera {
   #videoElement: HTMLVideoElement;
-  #trigger: HTMLButtonElement;
 
-  constructor(videoElement: HTMLVideoElement, trigger: HTMLButtonElement) {
+  constructor(videoElement: HTMLVideoElement) {
     this.#videoElement = videoElement;
-    this.#trigger = trigger;
   }
 
-  async start(): Promise<void> {
+  async start(): Promise<boolean> {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
         audio: false,
       });
       this.#videoElement.srcObject = stream;
-      this.#trigger.disabled = true;
-      this.#trigger.style.display = 'none';
+      return true;
     } catch (error) {
       alert(
         'カメラの起動に失敗しました。カメラへのアクセスを許可してください。'
       );
     }
+    return false;
   }
 
   stop(): void {
@@ -28,7 +26,8 @@ export class Camera {
     stream.getTracks().forEach(track => track.stop());
   }
 
-  capture(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): string {
+  capture(ctx: CanvasRenderingContext2D): string {
+    const canvas = ctx.canvas;
     canvas.width = this.#videoElement.videoWidth;
     canvas.height = this.#videoElement.videoHeight;
     ctx.drawImage(this.#videoElement, 0, 0, canvas.width, canvas.height);
