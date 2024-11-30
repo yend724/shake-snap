@@ -15,8 +15,6 @@ const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
 const debug = getElement<HTMLSpanElement>('#debug');
 
-let maxShake = 0;
-
 // Canvas Context
 const ctx = (() => {
   const context = canvas.getContext('2d');
@@ -31,11 +29,7 @@ const camera = new Camera(video, start);
 const photoModal = new PhotoModal(modal, capturedPhoto);
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
-    maxShake = Math.max(maxShake, totalAcceleration);
-
-    debug.textContent = `maxShake: ${maxShake.toFixed(
-      2
-    )}, totalAcceleration: ${totalAcceleration.toFixed(2)}`;
+    debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
 
     if (totalAcceleration > shakeThreshold) {
       const photoData = camera.capture(canvas, ctx);
