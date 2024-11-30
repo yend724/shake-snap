@@ -2,7 +2,9 @@ declare const DeviceMotionEvent: {
   requestPermission: () => Promise<PermissionState>;
 };
 
+type Handler = (event: DeviceMotionEvent) => void;
 export class DeviceMotionHandler {
+  #handlers: Handler[] = [];
   #onShake: (totalAcceleration: number) => void;
   constructor(params: { onShake: (totalAcceleration: number) => void }) {
     this.#onShake = params.onShake;
@@ -14,7 +16,7 @@ export class DeviceMotionHandler {
     try {
       const permissionState = await DeviceMotionEvent.requestPermission();
       if (permissionState === 'granted') {
-        this.#startListening();
+        this.startListening();
       } else {
         alert('加速度センサーの許可が得られませんでした');
       }
@@ -23,7 +25,7 @@ export class DeviceMotionHandler {
     }
   }
 
-  #startListening() {
+  startListening() {
     const handler = (event: DeviceMotionEvent) => {
       const { acceleration } = event;
       if (!acceleration) return;
@@ -39,5 +41,13 @@ export class DeviceMotionHandler {
       });
     };
     window.addEventListener('devicemotion', handler);
+    this.#handlers.push(handler);
+  }
+
+  stopListening() {
+    this.#handlers.forEach(handler => {
+      window.removeEventListener('devicemotion', handler);
+    });
+    this.#handlers = [];
   }
 }

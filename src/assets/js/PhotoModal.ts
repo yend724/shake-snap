@@ -15,12 +15,4 @@ export class PhotoModal {
   close(): void {
     this.modalElement.close();
   }
-
-  save(photoData: string): void {
-    const link = document.createElement('a');
-    link.download = `shakesnap-${Date.now()}.png`;
-    link.href = photoData;
-    link.click();
-    this.close();
-  }
 }

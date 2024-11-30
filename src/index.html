@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="./assets/css/style.css" />
     <script type="module" src="./assets/js/main.ts"></script>
   </head>
-  <body class="bg-gray-100 text-gray-800 font-sans leading-relaxed p-4">
+  <body class="bg-gray-100 text-gray-800 font-sans leading-relaxed p-4 text-sm">
+    <canvas id="canvas" class="hidden"></canvas>
     <div class="max-w-2xl mx-auto">
       <header class="text-center my-6">
         <h1 class="text-2xl font-bold tracking-tight text-gray-900">
@@ -15,60 +16,52 @@
         </h1>
       </header>
       <main class="space-y-6">
-        <video
-          id="video"
-          autoplay
-          muted
-          playsinline
-          class="w-full rounded-lg bg-black aspect-video object-cover"
-        ></video>
-        <canvas
-          id="canvas"
-          class="w-full rounded-lg bg-black aspect-video object-cover hidden"
-        ></canvas>
-        <div class="flex justify-center space-x-3">
+        <div class="relative">
+          <video
+            id="video"
+            autoplay
+            muted
+            playsinline
+            class="w-full rounded-md bg-black aspect-video object-cover"
+          ></video>
           <button
             id="start"
-            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition"
+            class="px-2 py-1 bg-green-600 text-white rounded-md absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hover:shadow-lg"
           >
-            開始
+            カメラを起動
           </button>
+        </div>
+        <div class="text-center">
           <button
             id="capture"
-            class="px-6 py-3 bg-green-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition"
+            class="px-2 py-1 bg-blue-600 text-white rounded-md hover:shadow-lg"
           >
             写真を撮る
           </button>
         </div>
         <pre
           id="debug"
-          class="bg-white text-sm font-mono p-4 rounded-lg shadow-sm overflow-x-auto whitespace-pre-wrap break-words"
+          class="bg-white text-sm font-mono p-4 rounded-md shadow-sm overflow-x-auto whitespace-pre-wrap break-words"
         ></pre>
       </main>
     </div>
 
     <!-- モーダル -->
     <!-- dialog要素を使ってモーダルを実装する -->
-    <dialog id="photoModal">
+    <dialog id="photoModal" class="bg-transparent">
       <div class="p-2">
         <img
           id="capturedPhoto"
           alt="撮影した写真"
           src=""
-          class="w-full rounded-lg mb-4"
+          class="w-full rounded-md mb-4"
           width="160"
           height="90"
         />
         <div class="flex justify-center space-x-3">
           <button
-            id="savePhoto"
-            class="px-6 py-3 bg-green-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition"
-          >
-            保存する
-          </button>
-          <button
             id="retakePhoto"
-            class="px-6 py-3 bg-red-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-1 transition"
+            class="px-2 py-1 bg-red-600 text-white font-medium rounded-md"
           >
             撮り直す
           </button>

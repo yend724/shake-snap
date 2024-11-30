@@ -12,7 +12,6 @@ const start = getElement<HTMLButtonElement>('#start');
 const capture = getElement<HTMLButtonElement>('#capture');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
-const saveButton = getElement<HTMLButtonElement>('#savePhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
 const debug = getElement<HTMLSpanElement>('#debug');
 
@@ -28,8 +27,7 @@ const ctx = (() => {
   return context;
 })();
 
-// Main Application Logic
-const camera = new Camera(video);
+const camera = new Camera(video, start);
 const photoModal = new PhotoModal(modal, capturedPhoto);
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
@@ -46,7 +44,6 @@ const deviceMotionHandler = new DeviceMotionHandler({
   },
 });
 
-// Event Listeners
 start.addEventListener('click', async () => {
   await camera.start();
   await deviceMotionHandler.requestPermission();
@@ -54,18 +51,16 @@ start.addEventListener('click', async () => {
 
 capture.addEventListener('click', () => {
   const photoData = camera.capture(canvas, ctx);
-  photoModal.show(photoData);
-});
 
-saveButton.addEventListener('click', () => {
-  const photoData = canvas.toDataURL('image/png');
-  photoModal.save(photoData);
-});
-
-retakeButton.addEventListener('click', () => photoModal.close());
-
-modal.addEventListener('click', (e: MouseEvent) => {
-  if (e.target === modal) {
-    photoModal.close();
+  if (photoData !== 'data:,') {
+    photoModal.show(photoData);
+    deviceMotionHandler.stopListening();
+    camera.stop();
   }
+});
+
+retakeButton.addEventListener('click', () => {
+  photoModal.close();
+  deviceMotionHandler.startListening();
+  camera.start();
 });
