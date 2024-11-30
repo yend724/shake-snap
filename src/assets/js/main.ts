@@ -18,7 +18,7 @@ const deviceMotion = getElement<HTMLButtonElement>('#deviceMotion');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const recaptureButton = getElement<HTMLButtonElement>('#recapturePhoto');
-const countUp = getElement<HTMLButtonElement>('#countUp');
+const store = getElement<HTMLButtonElement>('#store');
 const meter = getElement<HTMLDivElement>('#meter');
 
 const video = createVideo();
@@ -31,7 +31,7 @@ const camera = new Camera({
   videoElement: video,
   onCameraStart: () => {
     startCamera.remove();
-    countUp.disabled = false;
+    store.disabled = false;
   },
 });
 const photoModal = new PhotoModal(modal, capturedPhoto);
@@ -72,6 +72,6 @@ recaptureButton.addEventListener('click', () => {
   meterOperator.reset();
 });
 
-countUp.addEventListener('click', () => {
+store.addEventListener('click', () => {
   meterOperator.add(40);
 });
