@@ -1,21 +1,21 @@
-export class Meter {
-  #meter = 0;
+export class MeterOperator {
+  #value = 0;
 
   constructor() {
-    this.#meter = 0;
+    this.#value = 0;
   }
   get value() {
-    return this.#meter;
+    return this.#value;
   }
   add(value: number) {
-    this.#meter += value;
-    this.#meter = Math.min(100, this.#meter);
+    this.#value += value;
+    this.#value = Math.min(100, this.#value);
   }
   set(value: number) {
-    this.#meter = value;
-    this.#meter = Math.min(100, this.#meter);
+    this.#value = value;
+    this.#value = Math.min(100, this.#value);
   }
   reset() {
-    this.#meter = 0;
+    this.#value = 0;
   }
 }

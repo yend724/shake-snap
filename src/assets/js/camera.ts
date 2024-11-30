@@ -1,8 +1,12 @@
 export class Camera {
   #videoElement: HTMLVideoElement;
-
-  constructor(videoElement: HTMLVideoElement) {
-    this.#videoElement = videoElement;
+  #onCameraPlayStart: () => void;
+  constructor(params: {
+    videoElement: HTMLVideoElement;
+    onCameraPlayStart: () => void;
+  }) {
+    this.#videoElement = params.videoElement;
+    this.#onCameraPlayStart = params.onCameraPlayStart;
   }
 
   async start(): Promise<boolean> {
@@ -12,8 +16,10 @@ export class Camera {
         audio: false,
       });
       this.#videoElement.srcObject = stream;
+      this.#onCameraPlayStart();
       return true;
     } catch (error) {
+      console.error(error);
       alert(
         'カメラの起動に失敗しました。カメラへのアクセスを許可してください。'
       );
@@ -23,7 +29,8 @@ export class Camera {
 
   stop(): void {
     const stream = this.#videoElement.srcObject as MediaStream;
-    stream.getTracks().forEach(track => track.stop());
+    // stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach(track => stream.removeTrack(track));
   }
 
   capture(ctx: CanvasRenderingContext2D): string {

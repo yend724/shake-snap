@@ -15,6 +15,16 @@ export const createCanvas = (
   canvas.height = height;
   return canvas;
 };
+export const getCanvasContext2D = (
+  canvas: HTMLCanvasElement
+): CanvasRenderingContext2D => {
+  const context = canvas.getContext('2d');
+  if (!context) {
+    alert('キャンバスコンテキストの取得に失敗しました');
+    throw new Error('Could not get canvas context');
+  }
+  return context;
+};
 export const createVideo = (): HTMLVideoElement => {
   const video = document.createElement('video');
   video.autoplay = true;

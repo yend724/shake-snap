@@ -1,73 +1,86 @@
 import '../css/style.css';
-import { getElement, createCanvas, createVideo } from './utils';
+import {
+  getElement,
+  createCanvas,
+  getCanvasContext2D,
+  createVideo,
+} from './utils';
 import { shakeThreshold } from './constants';
 import { DeviceMotionHandler } from './device-motion';
 import { Camera } from './camera';
 import { PhotoModal } from './photo-modal';
-import { Meter } from './meter';
+import { MeterOperator } from './meter';
 
 // DOM Elements
 const videoWrapper = getElement<HTMLDivElement>('#videoWrapper');
 const start = getElement<HTMLButtonElement>('#start');
 const deviceMotion = getElement<HTMLDivElement>('#deviceMotion');
-// const capture = getElement<HTMLButtonElement>('#capture');
+
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
-// const countUp = getElement<HTMLDivElement>('#countUp');
-const guage = getElement<HTMLDivElement>('#meter > div');
+const countUp = getElement<HTMLButtonElement>('#countUp');
+const meter = getElement<HTMLDivElement>('#meter > div');
 
 const video = createVideo();
 videoWrapper.appendChild(video);
-const ctx = (() => {
-  const canvas = createCanvas(video.width, video.height);
-  const context = canvas.getContext('2d');
-  if (!context) {
-    alert('キャンバスコンテキストの取得に失敗しました');
-    throw new Error('Could not get canvas context');
-  }
-  return context;
-})();
 
-const camera = new Camera(video);
+const canvas = createCanvas(video.width, video.height);
+const ctx = getCanvasContext2D(canvas);
+
+const camera = new Camera({
+  videoElement: video,
+  onCameraPlayStart: () => {
+    start.remove();
+    countUp.disabled = false;
+  },
+});
 const photoModal = new PhotoModal(modal, capturedPhoto);
-const meter = new Meter();
+const meterOperator = new MeterOperator();
 
 const deviceMotionHandler = new DeviceMotionHandler({
-  onShake: totalAcceleration => {
-    meter.set(totalAcceleration);
-    guage.style.setProperty('--meter', `${totalAcceleration}%`);
+  shakeThreshold,
+  onShake: accelerationRatio => {
+    meterOperator.set(accelerationRatio);
+    meter.style.setProperty('--meter', `${accelerationRatio}%`);
   },
-  onReachShakeThreshold: totalAcceleration => {
-    meter.set(totalAcceleration);
-    guage.style.setProperty('--meter', `${totalAcceleration}%`);
+  onReachShakeThreshold: accelerationRatio => {
+    meterOperator.set(accelerationRatio);
+    meter.style.setProperty('--meter', `${accelerationRatio}%`);
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
     camera.stop();
   },
+  onPermissionGranted: () => {
+    deviceMotion.remove();
+  },
 });
 
 if (!deviceMotionHandler.isNeededPermission()) {
-  deviceMotion.style.display = 'none';
+  deviceMotion.remove();
 }
 
-start.addEventListener('click', async () => {
-  const bool = await camera.start();
-  if (bool) {
-    start.style.display = 'none';
-  }
+start.addEventListener('click', () => {
+  camera.start();
 });
 
-deviceMotion.addEventListener('click', async () => {
-  const bool = await deviceMotionHandler.requestPermission();
-  if (bool) {
-    deviceMotion.style.display = 'none';
-  }
+deviceMotion.addEventListener('click', () => {
+  deviceMotionHandler.requestPermission();
 });
 
 retakeButton.addEventListener('click', () => {
   photoModal.close();
   deviceMotionHandler.startListening();
   camera.start();
-  meter.reset();
+  meterOperator.reset();
+});
+
+countUp.addEventListener('click', () => {
+  meterOperator.add(40);
+  meter.style.setProperty('--meter', `${meterOperator.value}%`);
+  if (meterOperator.value >= 100) {
+    const photoData = camera.capture(ctx);
+    photoModal.show(photoData);
+    camera.stop();
+  }
 });

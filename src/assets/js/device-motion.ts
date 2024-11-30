@@ -2,17 +2,22 @@ declare const DeviceMotionEvent: {
   requestPermission?: () => Promise<PermissionState>;
 };
 
-type Handler = (event: DeviceMotionEvent) => void;
 export class DeviceMotionHandler {
-  #onShake: (totalAcceleration: number) => void;
-  #onReachShakeThreshold: (totalAcceleration: number) => void;
+  #shakeThreshold = 0;
+  #onShake: (accelerationRatio: number) => void;
+  #onReachShakeThreshold: (accelerationRatio: number) => void;
+  #onPermissionGranted: () => void;
 
   constructor(params: {
-    onShake: (totalAcceleration: number) => void;
-    onReachShakeThreshold: (totalAcceleration: number) => void;
+    shakeThreshold: number;
+    onShake: (accelerationRatio: number) => void;
+    onReachShakeThreshold: (accelerationRatio: number) => void;
+    onPermissionGranted: () => void;
   }) {
+    this.#shakeThreshold = params.shakeThreshold;
     this.#onShake = params.onShake;
     this.#onReachShakeThreshold = params.onReachShakeThreshold;
+    this.#onPermissionGranted = params.onPermissionGranted;
   }
 
   isNeededPermission(): boolean {
@@ -25,14 +30,15 @@ export class DeviceMotionHandler {
     try {
       const permissionState = await DeviceMotionEvent.requestPermission();
       if (permissionState === 'granted') {
+        this.#onPermissionGranted();
         this.startListening();
-        return true;
       } else {
         alert('加速度センサーの許可が得られませんでした');
+        console.warn('permissionState:', permissionState);
       }
     } catch (error) {
-      console.error(error);
       alert('デバイスモーション権限の取得に失敗しました');
+      console.error(error);
     }
     return false;
   }
@@ -45,14 +51,15 @@ export class DeviceMotionHandler {
       const z = acceleration?.z ?? 0;
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
 
-      if (totalAcceleration >= 100) {
+      if (totalAcceleration >= this.#shakeThreshold) {
         this.#onReachShakeThreshold(100);
-        window.removeEventListener('devicemotion', handler);
       } else {
-        this.#onShake(totalAcceleration);
+        this.#onShake((totalAcceleration / this.#shakeThreshold) * 100);
       }
     };
 
-    window.addEventListener('devicemotion', handler);
+    window.addEventListener('devicemotion', event => {
+      requestAnimationFrame(handler.bind(this, event));
+    });
   }
 }
