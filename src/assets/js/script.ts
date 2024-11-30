@@ -19,6 +19,7 @@ const video = getElement<HTMLVideoElement>('#video');
 const canvas = getElement<HTMLCanvasElement>('#canvas');
 const start = getElement<HTMLButtonElement>('#start');
 const capture = getElement<HTMLButtonElement>('#capture');
+const debug = getElement<HTMLDivElement>('#debug');
 
 // Canvas Context
 const ctx = (() => {
@@ -37,8 +38,14 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
   try {
     const permissionState = await DeviceMotionEvent.requestPermission();
     if (permissionState === 'granted') {
-      window.addEventListener('devicemotion', _ => {
+      window.addEventListener('devicemotion', event => {
         // モーションイベントの処理をここに追加
+        console.log(event);
+        const { acceleration } = event;
+        if (!acceleration) return;
+        const { x, y, z } = acceleration;
+
+        debug.textContent = JSON.stringify({ x, y, z }, null, 2);
       });
     } else {
       alert('加速度センサーの許可が得られませんでした');
@@ -71,5 +78,3 @@ const capturePhoto = (): void => {
 // Event Listeners
 start.addEventListener('click', startCamera);
 capture.addEventListener('click', capturePhoto);
-
-// Initialize
