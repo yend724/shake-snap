@@ -21,6 +21,8 @@ const start = getElement<HTMLButtonElement>('#start');
 const capture = getElement<HTMLButtonElement>('#capture');
 const debug = getElement<HTMLDivElement>('#debug');
 
+const shakeThreshold = 15; // 加速度のしきい値
+
 // Canvas Context
 const ctx = (() => {
   const context = canvas.getContext('2d');
@@ -43,9 +45,21 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
         console.log(event);
         const { acceleration } = event;
         if (!acceleration) return;
-        const { x, y, z } = acceleration;
+
+        // nullチェックを追加
+        const x = acceleration.x ?? 0;
+        const y = acceleration.y ?? 0;
+        const z = acceleration.z ?? 0;
 
         debug.textContent = JSON.stringify({ x, y, z }, null, 2);
+
+        // 加速度の合計値を計算
+        const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+
+        // しきい値を超えたら画像をキャプチャ
+        if (totalAcceleration > shakeThreshold) {
+          capturePhoto();
+        }
       });
     } else {
       alert('加速度センサーの許可が得られませんでした');
