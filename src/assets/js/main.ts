@@ -79,7 +79,7 @@ retakeButton.addEventListener('click', () => {
 });
 
 countUp.addEventListener('click', () => {
-  meter.add(1);
+  meter.add(10);
   if (meter.value >= 100) {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
@@ -91,6 +91,6 @@ countUp.addEventListener('click', () => {
 
 const loop = () => {
   requestAnimationFrame(loop);
-  guage.style.height = `${meter.value}%`;
+  guage.style.setProperty('--meter', `${meter.value}%`);
 };
 loop();

@@ -45,9 +45,15 @@
         </div>
         <div
           id="meter"
-          class="fixed right-4 bottom-4 w-8 h-[calc(100%-2rem)] border border-white bg-black/50 flex items-end"
+          class="fixed right-4 bottom-4 w-8 h-[calc(100%-2rem)] border border-white bg-black/50"
         >
-          <div class="bg-red-500 w-full"></div>
+          <div
+            class="w-full size-full bg-gradient-to-t from-red-500 to-green-500"
+            style="
+              --meter: 0px;
+              clip-path: inset(calc(100% - var(--meter)) 0 0 0);
+            "
+          ></div>
         </div>
       </main>
     </div>
