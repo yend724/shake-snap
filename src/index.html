@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="./assets/css/style.css" />
     <script type="module" src="./assets/js/main.ts"></script>
   </head>
-  <body class="bg-black text-gray-800 font-sans text-sm size-full">
+  <body class="bg-black text-white font-sans text-sm size-full">
     <div class="grid size-full grid-cols-1 grid-rows-1">
       <header class="sr-only">
         <h1>Shake Snap</h1>
@@ -20,53 +20,45 @@
           playsinline
           class="absolute size-full"
         ></video>
-        <button
-          id="start"
-          class="relative px-2 py-1 bg-green-600 text-white rounded-md"
-        >
+        <button id="start" class="relative px-2 py-1 bg-green-600 rounded-md">
           カメラを起動
         </button>
         <div
           class="absolute z-10 bottom-4 w-full px-2 grid gap-2 justify-center"
         >
           <div class="text-center">
-            <button
-              id="capture"
-              class="px-2 py-1 bg-blue-600 text-white rounded-md"
-            >
+            <button id="capture" class="px-2 py-1 bg-blue-600 rounded-md">
               写真を撮る
             </button>
           </div>
           <pre
             id="debug"
-            class="bg-white font-mono px-2 py-1 rounded-md w-full"
+            class="bg-white text-black font-mono px-2 py-1 rounded-md w-full"
           ></pre>
         </div>
       </main>
     </div>
 
-    <!-- モーダル -->
-    <!-- dialog要素を使ってモーダルを実装する -->
-    <dialog id="photoModal" class="bg-transparent">
-      <div class="p-2">
-        <img
-          id="capturedPhoto"
-          alt="撮影した写真"
-          src=""
-          class="w-full rounded-md mb-4"
-          width="160"
-          height="90"
-        />
-        <div class="flex justify-center space-x-3">
-          <button
-            id="retakePhoto"
-            class="px-2 py-1 bg-red-600 text-white font-medium rounded-md"
-          >
-            撮り直す
-          </button>
-        </div>
+    <dialog
+      id="photoModal"
+      class="bg-transparent text-center grid grod-col-1 gap-2"
+    >
+      <img
+        id="capturedPhoto"
+        alt="撮影した写真"
+        src=""
+        class="w-full rounded-md"
+        width="640"
+        height="480"
+      />
+      <div>
+        <button
+          id="retakePhoto"
+          class="px-2 py-1 bg-red-600 text-white rounded-md"
+        >
+          写真を撮り直す
+        </button>
       </div>
     </dialog>
-    <canvas id="canvas" class="hidden"></canvas>
   </body>
 </html>

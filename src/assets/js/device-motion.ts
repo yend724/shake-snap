@@ -19,8 +19,10 @@ export class DeviceMotionHandler {
         this.startListening();
       } else {
         alert('加速度センサーの許可が得られませんでした');
+        console.log(permissionState);
       }
     } catch (error) {
+      console.error(error);
       alert('デバイスモーション権限の取得に失敗しました');
     }
   }

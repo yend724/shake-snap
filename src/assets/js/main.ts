@@ -1,13 +1,12 @@
 import '../css/style.css';
-import { getElement } from './utils';
+import { getElement, createCanvas } from './utils';
 import { shakeThreshold } from './constants';
 import { DeviceMotionHandler } from './device-motion';
 import { Camera } from './camera';
-import { PhotoModal } from './PhotoModal';
+import { PhotoModal } from './photo-modal';
 
 // DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
-const canvas = getElement<HTMLCanvasElement>('#canvas');
 const start = getElement<HTMLButtonElement>('#start');
 const capture = getElement<HTMLButtonElement>('#capture');
 const modal = getElement<HTMLDialogElement>('#photoModal');
@@ -17,6 +16,7 @@ const debug = getElement<HTMLSpanElement>('#debug');
 
 // Canvas Context
 const ctx = (() => {
+  const canvas = createCanvas(video.width, video.height);
   const context = canvas.getContext('2d');
   if (!context) {
     alert('キャンバスコンテキストの取得に失敗しました');
@@ -32,7 +32,8 @@ const deviceMotionHandler = new DeviceMotionHandler({
     debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
 
     if (totalAcceleration > shakeThreshold) {
-      const photoData = camera.capture(canvas, ctx);
+      console.log(shakeThreshold);
+      const photoData = camera.capture(ctx.canvas, ctx);
       photoModal.show(photoData);
     }
   },
@@ -44,7 +45,7 @@ start.addEventListener('click', async () => {
 });
 
 capture.addEventListener('click', () => {
-  const photoData = camera.capture(canvas, ctx);
+  const photoData = camera.capture(ctx.canvas, ctx);
 
   if (photoData !== 'data:,') {
     photoModal.show(photoData);
