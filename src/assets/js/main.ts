@@ -43,7 +43,7 @@ const meterOperator = new MeterOperator({
   onLimitReached: () => {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
-    // camera.stop();
+    camera.stop();
   },
 });
 
