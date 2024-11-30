@@ -4,7 +4,6 @@ declare const DeviceMotionEvent: {
 
 type Handler = (event: DeviceMotionEvent) => void;
 export class DeviceMotionHandler {
-  #handlers: Handler[] = [];
   #onShake: (totalAcceleration: number) => void;
   #onReachShakeThreshold: (totalAcceleration: number) => void;
 
@@ -19,6 +18,7 @@ export class DeviceMotionHandler {
   isNeededPermission(): boolean {
     return typeof DeviceMotionEvent.requestPermission === 'function';
   }
+
   async requestPermission(): Promise<boolean> {
     if (!DeviceMotionEvent.requestPermission) return true;
 
@@ -40,29 +40,19 @@ export class DeviceMotionHandler {
   startListening() {
     const handler = (event: DeviceMotionEvent) => {
       const { acceleration } = event;
-
-      if (!acceleration) return;
-
-      const x = acceleration.x ?? 0;
-      const y = acceleration.y ?? 0;
-      const z = acceleration.z ?? 0;
-
+      const x = acceleration?.x ?? 0;
+      const y = acceleration?.y ?? 0;
+      const z = acceleration?.z ?? 0;
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
 
       if (totalAcceleration >= 100) {
-        this.#onReachShakeThreshold(totalAcceleration);
+        this.#onReachShakeThreshold(100);
+        window.removeEventListener('devicemotion', handler);
       } else {
         this.#onShake(totalAcceleration);
       }
     };
-    window.addEventListener('devicemotion', handler);
-    this.#handlers.push(handler);
-  }
 
-  stopListening() {
-    this.#handlers.forEach(handler => {
-      window.removeEventListener('devicemotion', handler);
-    });
-    this.#handlers = [];
+    window.addEventListener('devicemotion', handler);
   }
 }
