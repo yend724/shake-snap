@@ -2,7 +2,6 @@ export class MeterOperator {
   #value = 0;
   #limit = 0;
   #ratio = 0;
-  #isLimitReached = false;
   #onUpdateValue: ({ value, ratio }: { value: number; ratio: number }) => void;
   #onLimitReached: () => void;
   constructor(params: {
@@ -12,10 +11,7 @@ export class MeterOperator {
   }) {
     this.#value = 0;
     this.#limit = params.limit;
-    this.#onLimitReached = () => {
-      params.onLimitReached();
-      this.#isLimitReached = true;
-    };
+    this.#onLimitReached = params.onLimitReached;
     this.#onUpdateValue = params.onUpdateValue;
   }
 
