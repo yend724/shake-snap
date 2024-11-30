@@ -1,5 +1,5 @@
 import '../css/style.css';
-import { getElement, createCanvas } from './utils';
+import { getElement, createCanvas, createVideo } from './utils';
 import { shakeThreshold } from './constants';
 import { DeviceMotionHandler } from './device-motion';
 import { Camera } from './camera';
@@ -7,17 +7,18 @@ import { PhotoModal } from './photo-modal';
 import { Meter } from './meter';
 
 // DOM Elements
-const video = getElement<HTMLVideoElement>('#video');
+const videoWrapper = getElement<HTMLDivElement>('#videoWrapper');
 const start = getElement<HTMLButtonElement>('#start');
-const deviceMotion = getElement<HTMLSpanElement>('#deviceMotion');
-const capture = getElement<HTMLButtonElement>('#capture');
+const deviceMotion = getElement<HTMLDivElement>('#deviceMotion');
+// const capture = getElement<HTMLButtonElement>('#capture');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
-const countUp = getElement<HTMLSpanElement>('#countUp');
-const guage = getElement<HTMLSpanElement>('#meter > div');
+// const countUp = getElement<HTMLDivElement>('#countUp');
+const guage = getElement<HTMLDivElement>('#meter > div');
 
-// Canvas Context
+const video = createVideo();
+videoWrapper.appendChild(video);
 const ctx = (() => {
   const canvas = createCanvas(video.width, video.height);
   const context = canvas.getContext('2d');
@@ -61,27 +62,27 @@ deviceMotion.addEventListener('click', async () => {
   }
 });
 
-capture.addEventListener('click', () => {
-  const photoData = camera.capture(ctx);
-  photoModal.show(photoData);
-  deviceMotionHandler.stopListening();
-  camera.stop();
-});
+// capture.addEventListener('click', () => {
+//   const photoData = camera.capture(ctx);
+//   photoModal.show(photoData);
+//   deviceMotionHandler.stopListening();
+//   camera.stop();
+// });
 
 retakeButton.addEventListener('click', () => {
   photoModal.close();
   // deviceMotionHandler.startListening();
   // camera.start();
-  meter.reset();
+  // meter.reset();
 });
 
-countUp.addEventListener('click', () => {
-  meter.add(10);
-  guage.style.setProperty('--meter', `${meter.value}%`);
-  if (meter.value >= 100) {
-    const photoData = camera.capture(ctx);
-    photoModal.show(photoData);
-    deviceMotionHandler.stopListening();
-    camera.stop();
-  }
-});
+// countUp.addEventListener('click', () => {
+//   meter.add(10);
+//   guage.style.setProperty('--meter', `${meter.value}%`);
+//   if (meter.value >= 100) {
+//     const photoData = camera.capture(ctx);
+//     photoModal.show(photoData);
+//     deviceMotionHandler.stopListening();
+//     camera.stop();
+//   }
+// });

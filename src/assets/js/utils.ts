@@ -15,3 +15,12 @@ export const createCanvas = (
   canvas.height = height;
   return canvas;
 };
+export const createVideo = (): HTMLVideoElement => {
+  const video = document.createElement('video');
+  video.autoplay = true;
+  video.playsInline = true;
+  video.muted = true;
+  video.style.width = '100%';
+  video.style.height = '100%';
+  return video;
+};
