@@ -27,6 +27,8 @@ videoWrapper.appendChild(video);
 const canvas = createCanvas(video.width, video.height);
 const ctx = getCanvasContext2D(canvas);
 
+const photoModal = new PhotoModal(modal, capturedPhoto);
+
 const camera = new Camera({
   videoElement: video,
   onCameraStart: () => {
@@ -34,7 +36,6 @@ const camera = new Camera({
     store.disabled = false;
   },
 });
-const photoModal = new PhotoModal(modal, capturedPhoto);
 const meterOperator = new MeterOperator({
   limit: shakeThreshold,
   onUpdateValue: value => {
@@ -46,7 +47,6 @@ const meterOperator = new MeterOperator({
     camera.stop();
   },
 });
-
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
     meterOperator.set(totalAcceleration);
@@ -58,7 +58,10 @@ const deviceMotionHandler = new DeviceMotionHandler({
 
 startCamera.addEventListener('click', async () => {
   await camera.start();
-  await deviceMotionHandler.requestPermission();
+  const isGranted = await deviceMotionHandler.requestPermission();
+  if (!isGranted) {
+    deviceMotion.style.display = 'block';
+  }
 });
 
 deviceMotion.addEventListener('click', () => {
@@ -67,7 +70,7 @@ deviceMotion.addEventListener('click', () => {
 
 recaptureButton.addEventListener('click', () => {
   photoModal.close();
-  deviceMotionHandler.startListening();
+  deviceMotionHandler.start();
   camera.start();
   meterOperator.reset();
 });
@@ -75,3 +78,8 @@ recaptureButton.addEventListener('click', () => {
 store.addEventListener('click', () => {
   meterOperator.add(40);
 });
+
+if (!deviceMotionHandler.isFeatureSupported()) {
+  console.error('DeviceMotionEvent is not supported');
+  store.remove();
+}

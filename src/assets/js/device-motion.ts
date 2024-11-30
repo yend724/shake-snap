@@ -22,6 +22,11 @@ export class DeviceMotionHandler {
     return typeof DeviceMotionEvent.requestPermission === 'function';
   }
 
+  isFeatureSupported(): boolean {
+    console.log(new DeviceMotionEvent('').acceleration);
+    return 'DeviceMotionEvent' in window;
+  }
+
   async requestPermission(): Promise<boolean> {
     if (!DeviceMotionEvent.requestPermission) return true;
 
@@ -29,31 +34,35 @@ export class DeviceMotionHandler {
       const permissionState = await DeviceMotionEvent.requestPermission();
       if (permissionState === 'granted') {
         this.#onPermissionGranted();
-        this.startListening();
+        this.start();
       } else {
         alert('加速度センサーの許可が得られませんでした');
         console.warn('permissionState:', permissionState);
       }
     } catch (error) {
-      alert('デバイスモーション権限の取得に失敗しました');
       console.error(error);
     }
     return false;
   }
 
-  startListening() {
+  start() {
     const handler = (event: DeviceMotionEvent) => {
       const { acceleration } = event;
       const x = acceleration?.x ?? 0;
       const y = acceleration?.y ?? 0;
       const z = acceleration?.z ?? 0;
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
-
       this.#onShake(totalAcceleration);
     };
 
-    window.addEventListener('devicemotion', event => {
-      requestAnimationFrame(handler.bind(this, event));
-    });
+    window.addEventListener(
+      'devicemotion',
+      event => {
+        requestAnimationFrame(() => handler(event));
+      },
+      {
+        passive: true,
+      }
+    );
   }
 }
