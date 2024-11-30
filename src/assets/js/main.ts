@@ -63,7 +63,6 @@ deviceMotion.addEventListener('click', async () => {
 
 capture.addEventListener('click', () => {
   const photoData = camera.capture(ctx);
-
   photoModal.show(photoData);
   deviceMotionHandler.stopListening();
   camera.stop();
@@ -71,8 +70,8 @@ capture.addEventListener('click', () => {
 
 retakeButton.addEventListener('click', () => {
   photoModal.close();
-  deviceMotionHandler.startListening();
-  camera.start();
+  // deviceMotionHandler.startListening();
+  // camera.start();
   meter.reset();
 });
 
