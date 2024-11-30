@@ -70,7 +70,7 @@ const startCamera = async (): Promise<void> => {
   try {
     requestDeviceMotionPermission();
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user' },
+      video: { facingMode: 'environment' },
       audio: false,
     });
     video.srcObject = stream;
