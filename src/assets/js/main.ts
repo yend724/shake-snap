@@ -34,12 +34,12 @@ const meter = new Meter();
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
     meter.set(totalAcceleration);
-    if (meter.value > shakeThreshold) {
+    guage.style.setProperty('--meter', `${totalAcceleration}%`);
+    if (totalAcceleration > shakeThreshold) {
       const photoData = camera.capture(ctx);
       photoModal.show(photoData);
       deviceMotionHandler.stopListening();
       camera.stop();
-      meter.stop();
     }
   },
 });
@@ -67,30 +67,22 @@ capture.addEventListener('click', () => {
   photoModal.show(photoData);
   deviceMotionHandler.stopListening();
   camera.stop();
-  meter.stop();
 });
 
 retakeButton.addEventListener('click', () => {
   photoModal.close();
   deviceMotionHandler.startListening();
   camera.start();
-  meter.start();
   meter.reset();
 });
 
 countUp.addEventListener('click', () => {
   meter.add(10);
+  guage.style.setProperty('--meter', `${meter.value}%`);
   if (meter.value >= 100) {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
     deviceMotionHandler.stopListening();
     camera.stop();
-    meter.stop();
   }
 });
-
-const loop = () => {
-  requestAnimationFrame(loop);
-  guage.style.setProperty('--meter', `${meter.value}%`);
-};
-loop();
