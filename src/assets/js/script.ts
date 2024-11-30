@@ -23,7 +23,6 @@ const debug = getElement<HTMLDivElement>('#debug');
 
 const shakeThreshold = 15; // 加速度のしきい値
 
-// Canvas Context
 const ctx = (() => {
   const context = canvas.getContext('2d');
   if (!context) {
@@ -33,7 +32,6 @@ const ctx = (() => {
   return context;
 })();
 
-// Device Motion Permission
 const requestDeviceMotionPermission = async (): Promise<void> => {
   if (!DeviceMotionEvent?.requestPermission) return;
 
@@ -69,12 +67,11 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
   }
 };
 
-// Camera Functions
 const startCamera = async (): Promise<void> => {
   try {
     requestDeviceMotionPermission();
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: { facingMode: 'user' },
       audio: false,
     });
     video.srcObject = stream;
