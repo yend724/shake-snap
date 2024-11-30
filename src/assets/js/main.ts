@@ -14,7 +14,7 @@ import { MeterOperator } from './meter';
 // DOM Elements
 const videoWrapper = getElement<HTMLDivElement>('#videoWrapper');
 const startCamera = getElement<HTMLButtonElement>('#startCamera');
-const deviceMotion = getElement<HTMLDivElement>('#deviceMotion');
+const deviceMotion = getElement<HTMLButtonElement>('#deviceMotion');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const recaptureButton = getElement<HTMLButtonElement>('#recapturePhoto');
@@ -43,7 +43,7 @@ const meterOperator = new MeterOperator({
   onLimitReached: () => {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
-    camera.stop();
+    // camera.stop();
   },
 });
 
