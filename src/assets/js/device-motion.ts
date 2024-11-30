@@ -6,8 +6,14 @@ type Handler = (event: DeviceMotionEvent) => void;
 export class DeviceMotionHandler {
   #handlers: Handler[] = [];
   #onShake: (totalAcceleration: number) => void;
-  constructor(params: { onShake: (totalAcceleration: number) => void }) {
+  #onReachShakeThreshold: (totalAcceleration: number) => void;
+
+  constructor(params: {
+    onShake: (totalAcceleration: number) => void;
+    onReachShakeThreshold: (totalAcceleration: number) => void;
+  }) {
     this.#onShake = params.onShake;
+    this.#onReachShakeThreshold = params.onReachShakeThreshold;
   }
 
   isNeededPermission(): boolean {
@@ -34,6 +40,7 @@ export class DeviceMotionHandler {
   startListening() {
     const handler = (event: DeviceMotionEvent) => {
       const { acceleration } = event;
+
       if (!acceleration) return;
 
       const x = acceleration.x ?? 0;
@@ -42,9 +49,11 @@ export class DeviceMotionHandler {
 
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
 
-      requestAnimationFrame(() => {
+      if (totalAcceleration >= 100) {
+        this.#onReachShakeThreshold(totalAcceleration);
+      } else {
         this.#onShake(totalAcceleration);
-      });
+      }
     };
     window.addEventListener('devicemotion', handler);
     this.#handlers.push(handler);
