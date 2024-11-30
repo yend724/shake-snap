@@ -27,11 +27,6 @@ export class Camera {
     return false;
   }
 
-  stop(): void {
-    const stream = this.#videoElement.srcObject as MediaStream;
-    stream.getTracks().forEach(track => track.stop());
-  }
-
   capture(ctx: CanvasRenderingContext2D): string {
     const canvas = ctx.canvas;
     canvas.width = this.#videoElement.videoWidth;

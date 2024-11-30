@@ -44,7 +44,6 @@ const meterOperator = new MeterOperator({
   onLimitReached: () => {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
-    camera.stop();
   },
 });
 const deviceMotionHandler = new DeviceMotionHandler({
@@ -71,7 +70,6 @@ deviceMotion.addEventListener('click', () => {
 recaptureButton.addEventListener('click', () => {
   photoModal.close();
   deviceMotionHandler.start();
-  camera.start();
   meterOperator.reset();
 });
 

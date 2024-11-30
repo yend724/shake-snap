@@ -1,7 +1,6 @@
-declare const DeviceMotionEvent: {
+interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   requestPermission?: () => Promise<PermissionState>;
-};
-
+}
 export class DeviceMotionHandler {
   #onShake: (accelerationRatio: number) => void;
   #onPermissionGranted: () => void;
@@ -12,14 +11,6 @@ export class DeviceMotionHandler {
   }) {
     this.#onShake = params.onShake;
     this.#onPermissionGranted = params.onPermissionGranted;
-
-    if (!this.isNeededPermission()) {
-      this.#onPermissionGranted();
-    }
-  }
-
-  isNeededPermission(): boolean {
-    return typeof DeviceMotionEvent.requestPermission === 'function';
   }
 
   isFeatureSupported(): boolean {
@@ -28,21 +19,28 @@ export class DeviceMotionHandler {
   }
 
   async requestPermission(): Promise<boolean> {
-    if (!DeviceMotionEvent.requestPermission) return true;
-
-    try {
-      const permissionState = await DeviceMotionEvent.requestPermission();
-      if (permissionState === 'granted') {
-        this.#onPermissionGranted();
-        this.start();
-      } else {
-        alert('加速度センサーの許可が得られませんでした');
-        console.warn('permissionState:', permissionState);
+    const requestPermission = (
+      DeviceOrientationEvent as unknown as DeviceOrientationEventiOS
+    ).requestPermission;
+    const iOS = typeof requestPermission === 'function';
+    if (iOS) {
+      try {
+        const permissionState = await requestPermission();
+        if (permissionState === 'granted') {
+          this.#onPermissionGranted();
+          this.start();
+          return true;
+        } else {
+          alert('加速度センサーの許可が得られませんでした');
+          console.warn('permissionState:', permissionState);
+        }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
+      return false;
     }
-    return false;
+    this.start();
+    return true;
   }
 
   start() {
