@@ -40,7 +40,6 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
     if (permissionState === 'granted') {
       window.addEventListener('devicemotion', event => {
         // モーションイベントの処理をここに追加
-        console.log(event);
         const { acceleration } = event;
         if (!acceleration) return;
 
@@ -84,8 +83,45 @@ const capturePhoto = (): void => {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // キャンバスの画像をモーダル内の画像に設定
+  capturedPhoto.src = canvas.toDataURL('image/jpeg');
+
+  // モーダルを表示
+  modal.classList.add('show');
 };
 
 // Event Listeners
 start.addEventListener('click', startCamera);
 capture.addEventListener('click', capturePhoto);
+
+// Modal Elements
+const modal = getElement<HTMLDivElement>('#photoModal');
+const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
+const saveButton = getElement<HTMLButtonElement>('#savePhoto');
+const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
+
+// 写真を保存する関数
+const savePhoto = (): void => {
+  const link = document.createElement('a');
+  link.download = `shakesnap-${Date.now()}.jpg`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  closeModal();
+};
+
+// モーダルを閉じる関数
+const closeModal = (): void => {
+  modal.classList.remove('show');
+};
+
+// イベントリスナーを追加
+saveButton.addEventListener('click', savePhoto);
+retakeButton.addEventListener('click', closeModal);
+
+// モーダルの外側をクリックしたら閉じる
+modal.addEventListener('click', (e: MouseEvent) => {
+  if (e.target === modal) {
+    closeModal();
+  }
+});

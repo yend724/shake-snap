@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shake Snap</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
     <script type="module" src="./assets/js/script.ts"></script>
   </head>
   <body>
@@ -16,10 +17,21 @@
         <canvas id="canvas"></canvas>
         <div>
           <button id="start">開始</button>
-          <button id="capture">とる</button>
+          <button id="capture">写真を撮る</button>
         </div>
         <pre id="debug"></pre>
       </main>
+    </div>
+
+    <!-- モーダル -->
+    <div id="photoModal" class="modal">
+      <div class="modal-content">
+        <img id="capturedPhoto" alt="撮影した写真" src="" />
+        <div class="modal-buttons">
+          <button id="savePhoto" class="save-btn">保存する</button>
+          <button id="retakePhoto" class="retake-btn">撮り直す</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>
