@@ -8,6 +8,7 @@ import { PhotoModal } from './photo-modal';
 // DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
 const start = getElement<HTMLButtonElement>('#start');
+const deviceMotion = getElement<HTMLSpanElement>('#deviceMotion');
 const capture = getElement<HTMLButtonElement>('#capture');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
@@ -32,7 +33,6 @@ const deviceMotionHandler = new DeviceMotionHandler({
     debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
 
     if (totalAcceleration > shakeThreshold) {
-      console.log(shakeThreshold);
       const photoData = camera.capture(ctx.canvas, ctx);
       photoModal.show(photoData);
     }
@@ -41,6 +41,9 @@ const deviceMotionHandler = new DeviceMotionHandler({
 
 start.addEventListener('click', async () => {
   await camera.start();
+});
+
+deviceMotion.addEventListener('click', async () => {
   await deviceMotionHandler.requestPermission();
 });
 
