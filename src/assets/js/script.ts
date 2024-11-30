@@ -15,7 +15,7 @@ const getElement = <T extends Element>(selector: string): T => {
 };
 
 // Constants
-const shakeThreshold = 30; // 加速度のしきい値
+const shakeThreshold = 100; // 加速度のしきい値
 
 // DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
@@ -27,6 +27,9 @@ const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const saveButton = getElement<HTMLButtonElement>('#savePhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
+const maxShakeDisplay = getElement<HTMLSpanElement>('#maxShake');
+
+let maxShake = 0;
 
 // Canvas Context
 const ctx = (() => {
@@ -76,6 +79,11 @@ class DeviceMotionHandler {
       if (totalAcceleration > shakeThreshold) {
         this.shakeCallback();
       }
+      if (totalAcceleration > maxShake) {
+        maxShake = totalAcceleration;
+      }
+
+      maxShakeDisplay.textContent = maxShake.toFixed(2);
     });
   }
 }
