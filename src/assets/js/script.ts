@@ -37,7 +37,7 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
   try {
     const permissionState = await DeviceMotionEvent.requestPermission();
     if (permissionState === 'granted') {
-      window.addEventListener('devicemotion', event => {
+      window.addEventListener('devicemotion', _ => {
         // モーションイベントの処理をここに追加
       });
     } else {
