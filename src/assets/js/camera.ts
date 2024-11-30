@@ -1,12 +1,12 @@
 export class Camera {
   #videoElement: HTMLVideoElement;
-  #onCameraPlayStart: () => void;
+  #onCameraStart: () => void;
   constructor(params: {
     videoElement: HTMLVideoElement;
-    onCameraPlayStart: () => void;
+    onCameraStart: () => void;
   }) {
     this.#videoElement = params.videoElement;
-    this.#onCameraPlayStart = params.onCameraPlayStart;
+    this.#onCameraStart = params.onCameraStart;
   }
 
   async start(): Promise<boolean> {
@@ -16,7 +16,7 @@ export class Camera {
         audio: false,
       });
       this.#videoElement.srcObject = stream;
-      this.#onCameraPlayStart();
+      this.#onCameraStart();
       return true;
     } catch (error) {
       console.error(error);

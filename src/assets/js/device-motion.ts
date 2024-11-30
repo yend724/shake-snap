@@ -3,21 +3,19 @@ declare const DeviceMotionEvent: {
 };
 
 export class DeviceMotionHandler {
-  #shakeThreshold = 0;
   #onShake: (accelerationRatio: number) => void;
-  #onReachShakeThreshold: (accelerationRatio: number) => void;
   #onPermissionGranted: () => void;
 
   constructor(params: {
-    shakeThreshold: number;
     onShake: (accelerationRatio: number) => void;
-    onReachShakeThreshold: (accelerationRatio: number) => void;
     onPermissionGranted: () => void;
   }) {
-    this.#shakeThreshold = params.shakeThreshold;
     this.#onShake = params.onShake;
-    this.#onReachShakeThreshold = params.onReachShakeThreshold;
     this.#onPermissionGranted = params.onPermissionGranted;
+
+    if (!this.isNeededPermission()) {
+      this.#onPermissionGranted();
+    }
   }
 
   isNeededPermission(): boolean {
@@ -51,11 +49,7 @@ export class DeviceMotionHandler {
       const z = acceleration?.z ?? 0;
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
 
-      if (totalAcceleration >= this.#shakeThreshold) {
-        this.#onReachShakeThreshold(100);
-      } else {
-        this.#onShake((totalAcceleration / this.#shakeThreshold) * 100);
-      }
+      this.#onShake(totalAcceleration);
     };
 
     window.addEventListener('devicemotion', event => {

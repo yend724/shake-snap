@@ -13,14 +13,13 @@ import { MeterOperator } from './meter';
 
 // DOM Elements
 const videoWrapper = getElement<HTMLDivElement>('#videoWrapper');
-const start = getElement<HTMLButtonElement>('#start');
+const startCamera = getElement<HTMLButtonElement>('#startCamera');
 const deviceMotion = getElement<HTMLDivElement>('#deviceMotion');
-
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
-const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
+const recaptureButton = getElement<HTMLButtonElement>('#recapturePhoto');
 const countUp = getElement<HTMLButtonElement>('#countUp');
-const meter = getElement<HTMLDivElement>('#meter > div');
+const meter = getElement<HTMLDivElement>('#meter');
 
 const video = createVideo();
 videoWrapper.appendChild(video);
@@ -30,45 +29,43 @@ const ctx = getCanvasContext2D(canvas);
 
 const camera = new Camera({
   videoElement: video,
-  onCameraPlayStart: () => {
-    start.remove();
+  onCameraStart: () => {
+    startCamera.remove();
     countUp.disabled = false;
   },
 });
 const photoModal = new PhotoModal(modal, capturedPhoto);
-const meterOperator = new MeterOperator();
-
-const deviceMotionHandler = new DeviceMotionHandler({
-  shakeThreshold,
-  onShake: accelerationRatio => {
-    meterOperator.set(accelerationRatio);
-    meter.style.setProperty('--meter', `${accelerationRatio}%`);
+const meterOperator = new MeterOperator({
+  limit: shakeThreshold,
+  onUpdateValue: value => {
+    meter.style.setProperty('--meter', `${value}%`);
   },
-  onReachShakeThreshold: accelerationRatio => {
-    meterOperator.set(accelerationRatio);
-    meter.style.setProperty('--meter', `${accelerationRatio}%`);
+  onLimitReached: () => {
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
     camera.stop();
+  },
+});
+
+const deviceMotionHandler = new DeviceMotionHandler({
+  onShake: totalAcceleration => {
+    meterOperator.set(totalAcceleration);
   },
   onPermissionGranted: () => {
     deviceMotion.remove();
   },
 });
 
-if (!deviceMotionHandler.isNeededPermission()) {
-  deviceMotion.remove();
-}
-
-start.addEventListener('click', () => {
-  camera.start();
+startCamera.addEventListener('click', async () => {
+  await camera.start();
+  await deviceMotionHandler.requestPermission();
 });
 
 deviceMotion.addEventListener('click', () => {
   deviceMotionHandler.requestPermission();
 });
 
-retakeButton.addEventListener('click', () => {
+recaptureButton.addEventListener('click', () => {
   photoModal.close();
   deviceMotionHandler.startListening();
   camera.start();
@@ -77,10 +74,4 @@ retakeButton.addEventListener('click', () => {
 
 countUp.addEventListener('click', () => {
   meterOperator.add(40);
-  meter.style.setProperty('--meter', `${meterOperator.value}%`);
-  if (meterOperator.value >= 100) {
-    const photoData = camera.capture(ctx);
-    photoModal.show(photoData);
-    camera.stop();
-  }
 });

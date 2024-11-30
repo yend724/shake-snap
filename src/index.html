@@ -15,7 +15,10 @@
       <main class="relative grid place-content-center row-start-1 col-start-1">
         <div id="videoWrapper" class="absolute size-full"></div>
         <div class="flex gap-2">
-          <button id="start" class="relative px-2 py-1 bg-green-600 rounded-md">
+          <button
+            id="startCamera"
+            class="relative px-2 py-1 bg-green-600 rounded-md"
+          >
             カメラを起動
           </button>
           <button
@@ -44,10 +47,7 @@
         >
           <div
             class="w-full size-full bg-gradient-to-t from-red-500 to-green-500"
-            style="
-              --meter: 0px;
-              clip-path: inset(calc(100% - var(--meter)) 0 0 0);
-            "
+            style="clip-path: inset(calc(100% - var(--meter, 0%)) 0 0 0)"
           ></div>
         </div>
       </main>
@@ -68,7 +68,7 @@
         />
         <div>
           <button
-            id="retakePhoto"
+            id="recapturePhoto"
             class="px-2 py-1 bg-red-600 text-white rounded-md"
           >
             写真を撮り直す
