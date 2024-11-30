@@ -1,11 +1,10 @@
 import '../css/style.css';
 
-// Types
 declare const DeviceMotionEvent: {
-  requestPermission?: () => Promise<PermissionState>;
+  requestPermission: () => Promise<PermissionState>;
 };
 
-// DOM Elements
+// Utility Functions
 const getElement = <T extends Element>(selector: string): T => {
   const element = document.querySelector<T>(selector);
   if (!element) {
@@ -15,14 +14,21 @@ const getElement = <T extends Element>(selector: string): T => {
   return element;
 };
 
+// Constants
+const shakeThreshold = 30; // 加速度のしきい値
+
+// DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
 const canvas = getElement<HTMLCanvasElement>('#canvas');
 const start = getElement<HTMLButtonElement>('#start');
 const capture = getElement<HTMLButtonElement>('#capture');
 const debug = getElement<HTMLDivElement>('#debug');
+const modal = getElement<HTMLDialogElement>('#photoModal');
+const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
+const saveButton = getElement<HTMLButtonElement>('#savePhoto');
+const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
 
-const shakeThreshold = 15; // 加速度のしきい値
-
+// Canvas Context
 const ctx = (() => {
   const context = canvas.getContext('2d');
   if (!context) {
@@ -32,96 +38,134 @@ const ctx = (() => {
   return context;
 })();
 
-const requestDeviceMotionPermission = async (): Promise<void> => {
-  if (!DeviceMotionEvent?.requestPermission) return;
+// DeviceMotion Module
+class DeviceMotionHandler {
+  private shakeCallback: () => void;
 
-  try {
-    const permissionState = await DeviceMotionEvent.requestPermission();
-    if (permissionState === 'granted') {
-      window.addEventListener('devicemotion', event => {
-        // モーションイベントの処理をここに追加
-        const { acceleration } = event;
-        if (!acceleration) return;
+  constructor(shakeCallback: () => void) {
+    this.shakeCallback = shakeCallback;
+  }
 
-        // nullチェックを追加
-        const x = acceleration.x ?? 0;
-        const y = acceleration.y ?? 0;
-        const z = acceleration.z ?? 0;
+  async requestPermission(): Promise<void> {
+    if (!DeviceMotionEvent?.requestPermission) return;
 
-        debug.textContent = JSON.stringify({ x, y, z }, null, 2);
-
-        // 加速度の合計値を計算
-        const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
-
-        // しきい値を超えたら画像をキャプチャ
-        if (totalAcceleration > shakeThreshold) {
-          capturePhoto();
-        }
-      });
-    } else {
-      alert('加速度センサーの許可が得られませんでした');
+    try {
+      const permissionState = await DeviceMotionEvent.requestPermission();
+      if (permissionState === 'granted') {
+        this.startListening();
+      } else {
+        alert('加速度センサーの許可が得られませんでした');
+      }
+    } catch (error) {
+      alert('デバイスモーション権限の取得に失敗しました');
     }
-  } catch (error) {
-    alert('デバイスモーション権限の取得に失敗しました');
   }
-};
 
-const startCamera = async (): Promise<void> => {
-  try {
-    requestDeviceMotionPermission();
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' },
-      audio: false,
+  private startListening(): void {
+    window.addEventListener('devicemotion', event => {
+      const { acceleration } = event;
+      if (!acceleration) return;
+
+      const x = acceleration.x ?? 0;
+      const y = acceleration.y ?? 0;
+      const z = acceleration.z ?? 0;
+
+      debug.textContent = JSON.stringify({ x, y, z }, null, 2);
+
+      const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+      if (totalAcceleration > shakeThreshold) {
+        this.shakeCallback();
+      }
     });
-    video.srcObject = stream;
-  } catch (error) {
-    alert('カメラの起動に失敗しました。カメラへのアクセスを許可してください。');
   }
-};
+}
 
-const capturePhoto = (): void => {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+// Camera Module
+class Camera {
+  private videoElement: HTMLVideoElement;
 
-  // キャンバスの画像をモーダル内の画像に設定
-  capturedPhoto.src = canvas.toDataURL('image/jpeg');
+  constructor(videoElement: HTMLVideoElement) {
+    this.videoElement = videoElement;
+  }
 
-  // モーダルを表示
-  modal.classList.add('show');
-};
+  async start(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false,
+      });
+      this.videoElement.srcObject = stream;
+    } catch (error) {
+      alert(
+        'カメラの起動に失敗しました。カメラへのアクセスを許可してください。'
+      );
+    }
+  }
+
+  capture(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): string {
+    canvas.width = this.videoElement.videoWidth;
+    canvas.height = this.videoElement.videoHeight;
+    ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg');
+  }
+}
+
+// Modal Module
+class PhotoModal {
+  private modalElement: HTMLDialogElement;
+  private photoElement: HTMLImageElement;
+
+  constructor(modalElement: HTMLDialogElement, photoElement: HTMLImageElement) {
+    this.modalElement = modalElement;
+    this.photoElement = photoElement;
+  }
+
+  show(photoData: string): void {
+    this.photoElement.src = photoData;
+    this.modalElement.showModal();
+  }
+
+  close(): void {
+    this.modalElement.close();
+  }
+
+  save(photoData: string): void {
+    const link = document.createElement('a');
+    link.download = `shakesnap-${Date.now()}.png`;
+    link.href = photoData;
+    link.click();
+    this.close();
+  }
+}
+
+// Main Application Logic
+const camera = new Camera(video);
+const photoModal = new PhotoModal(modal, capturedPhoto);
+const deviceMotionHandler = new DeviceMotionHandler(() => {
+  const photoData = camera.capture(canvas, ctx);
+  photoModal.show(photoData);
+});
 
 // Event Listeners
-start.addEventListener('click', startCamera);
-capture.addEventListener('click', capturePhoto);
+start.addEventListener('click', async () => {
+  await camera.start();
+  await deviceMotionHandler.requestPermission();
+});
 
-// Modal Elements
-const modal = getElement<HTMLDivElement>('#photoModal');
-const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
-const saveButton = getElement<HTMLButtonElement>('#savePhoto');
-const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
+capture.addEventListener('click', () => {
+  const photoData = camera.capture(canvas, ctx);
+  photoModal.show(photoData);
+});
 
-// 写真を保存する関数
-const savePhoto = (): void => {
-  const link = document.createElement('a');
-  link.download = `shakesnap-${Date.now()}.jpg`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  closeModal();
-};
+saveButton.addEventListener('click', () => {
+  const photoData = canvas.toDataURL('image/png');
+  photoModal.save(photoData);
+});
 
-// モーダルを閉じる関数
-const closeModal = (): void => {
-  modal.classList.remove('show');
-};
+retakeButton.addEventListener('click', () => photoModal.close());
 
-// イベントリスナーを追加
-saveButton.addEventListener('click', savePhoto);
-retakeButton.addEventListener('click', closeModal);
-
-// モーダルの外側をクリックしたら閉じる
 modal.addEventListener('click', (e: MouseEvent) => {
   if (e.target === modal) {
-    closeModal();
+    photoModal.close();
   }
 });
