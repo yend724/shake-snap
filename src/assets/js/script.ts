@@ -51,6 +51,7 @@ const requestDeviceMotionPermission = async (): Promise<void> => {
 // Camera Functions
 const startCamera = async (): Promise<void> => {
   try {
+    requestDeviceMotionPermission();
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: false,
@@ -72,4 +73,3 @@ start.addEventListener('click', startCamera);
 capture.addEventListener('click', capturePhoto);
 
 // Initialize
-requestDeviceMotionPermission();
