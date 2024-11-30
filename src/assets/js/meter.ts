@@ -12,6 +12,10 @@ export class Meter {
     this.#meter += value;
     this.#meter = Math.min(100, this.#meter);
   }
+  set(value: number) {
+    this.#meter = value;
+    this.#meter = Math.min(100, this.#meter);
+  }
   subtract(value: number) {
     this.#meter -= value;
     this.#meter = Math.max(0, this.#meter);

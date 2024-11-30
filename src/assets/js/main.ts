@@ -33,7 +33,7 @@ const photoModal = new PhotoModal(modal, capturedPhoto);
 const meter = new Meter();
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
-    meter.add(totalAcceleration / 50);
+    meter.set(totalAcceleration);
     if (meter.value > shakeThreshold) {
       const photoData = camera.capture(ctx);
       photoModal.show(photoData);
