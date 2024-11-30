@@ -1,1 +1,1 @@
-export const shakeThreshold = 90; // 加速度のしきい値
+export const shakeThreshold = 50; // 加速度のしきい値
