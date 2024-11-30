@@ -29,8 +29,7 @@ export class Camera {
 
   stop(): void {
     const stream = this.#videoElement.srcObject as MediaStream;
-    // stream.getTracks().forEach(track => track.stop());
-    stream.getTracks().forEach(track => stream.removeTrack(track));
+    stream.getTracks().forEach(track => track.stop());
   }
 
   capture(ctx: CanvasRenderingContext2D): string {
