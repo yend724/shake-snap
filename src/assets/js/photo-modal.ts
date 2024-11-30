@@ -7,6 +7,10 @@ export class PhotoModal {
     this.photoElement = photoElement;
   }
 
+  isOpen = (): boolean => {
+    return this.modalElement.open;
+  };
+
   show(photoData: string): void {
     this.photoElement.src = photoData;
     this.modalElement.showModal();

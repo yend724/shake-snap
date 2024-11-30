@@ -42,6 +42,9 @@ const meterOperator = new MeterOperator({
     meter.style.setProperty('--meter', `${ratio}%`);
   },
   onLimitReached: () => {
+    if (photoModal.isOpen()) {
+      return;
+    }
     const photoData = camera.capture(ctx);
     photoModal.show(photoData);
   },
