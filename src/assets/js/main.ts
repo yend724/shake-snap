@@ -33,7 +33,7 @@ const photoModal = new PhotoModal(modal, capturedPhoto);
 const meter = new Meter();
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
-    meter.add(totalAcceleration / 100);
+    meter.add(totalAcceleration / 20);
     if (meter.value > shakeThreshold) {
       const photoData = camera.capture(ctx);
       photoModal.show(photoData);
@@ -75,6 +75,7 @@ retakeButton.addEventListener('click', () => {
   deviceMotionHandler.startListening();
   camera.start();
   meter.start();
+  meter.reset();
 });
 
 countUp.addEventListener('click', () => {

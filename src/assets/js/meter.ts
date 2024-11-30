@@ -23,6 +23,9 @@ export class Meter {
   stop() {
     this.#loopFlg = false;
   }
+  reset() {
+    this.#meter = 0;
+  }
 
   #loop() {
     requestAnimationFrame(() => {
