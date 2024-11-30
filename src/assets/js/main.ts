@@ -16,7 +16,6 @@ const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
 const countUp = getElement<HTMLSpanElement>('#countUp');
 const guage = getElement<HTMLSpanElement>('#meter > div');
-const debug = getElement<HTMLSpanElement>('#debug');
 
 // Canvas Context
 const ctx = (() => {
@@ -34,7 +33,6 @@ const photoModal = new PhotoModal(modal, capturedPhoto);
 const meter = new Meter();
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
-    debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
     meter.add(totalAcceleration / 100);
     if (meter.value > shakeThreshold) {
       const photoData = camera.capture(ctx);
