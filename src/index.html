@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="./assets/css/style.css" />
     <script type="module" src="./assets/js/main.ts"></script>
   </head>
-  <body
-    class="bg-gray-100 text-gray-800 font-sans text-sm size-full min-h-screen"
-  >
+  <body class="bg-gray-100 text-gray-800 font-sans text-sm size-full">
     <div class="grid size-full grid-cols-1 grid-rows-1">
       <header class="sr-only">
         <h1>Shake Snap</h1>
@@ -28,18 +26,20 @@
         >
           カメラを起動
         </button>
-        <div class="absolute z-10 bottom-20 w-full text-center">
-          <button
-            id="capture"
-            class="px-2 py-1 bg-blue-600 text-white rounded-md"
-          >
-            写真を撮る
-          </button>
-        </div>
-        <div class="absolute bottom-4 left-0 z-10 w-full px-4">
+        <div
+          class="absolute z-10 bottom-4 w-full px-2 grid gap-2 justify-center"
+        >
+          <div class="text-center">
+            <button
+              id="capture"
+              class="px-2 py-1 bg-blue-600 text-white rounded-md"
+            >
+              写真を撮る
+            </button>
+          </div>
           <pre
             id="debug"
-            class="bg-white font-mono p-4 rounded-md whitespace-pre-wrap break-words h-10"
+            class="bg-white font-mono px-2 py-1 rounded-md w-full"
           ></pre>
         </div>
       </main>
