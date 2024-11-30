@@ -38,8 +38,8 @@ const camera = new Camera({
 });
 const meterOperator = new MeterOperator({
   limit: shakeThreshold,
-  onUpdateValue: value => {
-    meter.style.setProperty('--meter', `${value}%`);
+  onUpdateValue: ({ ratio }) => {
+    meter.style.setProperty('--meter', `${ratio}%`);
   },
   onLimitReached: () => {
     const photoData = camera.capture(ctx);
@@ -69,15 +69,9 @@ deviceMotion.addEventListener('click', () => {
 
 recaptureButton.addEventListener('click', () => {
   photoModal.close();
-  deviceMotionHandler.start();
   meterOperator.reset();
 });
 
 store.addEventListener('click', () => {
-  meterOperator.add(40);
+  meterOperator.add(10);
 });
-
-if (!deviceMotionHandler.isFeatureSupported()) {
-  console.error('DeviceMotionEvent is not supported');
-  store.remove();
-}

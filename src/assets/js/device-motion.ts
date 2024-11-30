@@ -1,5 +1,5 @@
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
-  requestPermission?: () => Promise<PermissionState>;
+  requestPermission: () => Promise<PermissionState>;
 }
 export class DeviceMotionHandler {
   #onShake: (accelerationRatio: number) => void;
@@ -13,37 +13,38 @@ export class DeviceMotionHandler {
     this.#onPermissionGranted = params.onPermissionGranted;
   }
 
-  isFeatureSupported(): boolean {
-    console.log(new DeviceMotionEvent('').acceleration);
-    return 'DeviceMotionEvent' in window;
+  #getRequestPermission() {
+    const requestPermission = (
+      DeviceMotionEvent as unknown as DeviceOrientationEventiOS
+    ).requestPermission;
+    const isRequestNeeded = typeof requestPermission === 'function';
+
+    if (!isRequestNeeded) {
+      return async () => 'granted' as const;
+    }
+    return requestPermission;
   }
 
   async requestPermission(): Promise<boolean> {
-    const requestPermission = (
-      DeviceOrientationEvent as unknown as DeviceOrientationEventiOS
-    ).requestPermission;
-    const iOS = typeof requestPermission === 'function';
-    if (iOS) {
-      try {
-        const permissionState = await requestPermission();
-        if (permissionState === 'granted') {
-          this.#onPermissionGranted();
-          this.start();
-          return true;
-        } else {
-          alert('加速度センサーの許可が得られませんでした');
-          console.warn('permissionState:', permissionState);
-        }
-      } catch (error) {
-        console.error(error);
+    const requestPermission = this.#getRequestPermission();
+
+    try {
+      const permissionState = await requestPermission();
+      if (permissionState === 'granted') {
+        this.#onPermissionGranted();
+        this.#registerEventHandlers();
+        return true;
+      } else {
+        alert('加速度センサーの許可が得られませんでした');
+        console.warn('permissionState:', permissionState);
       }
-      return false;
+    } catch (error) {
+      console.error(error);
     }
-    this.start();
-    return true;
+    return false;
   }
 
-  start() {
+  #registerEventHandlers() {
     const handler = (event: DeviceMotionEvent) => {
       const { acceleration } = event;
       const x = acceleration?.x ?? 0;
