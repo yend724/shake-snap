@@ -4,6 +4,7 @@ import { shakeThreshold } from './constants';
 import { DeviceMotionHandler } from './device-motion';
 import { Camera } from './camera';
 import { PhotoModal } from './photo-modal';
+import { Meter } from './meter';
 
 // DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
@@ -13,6 +14,8 @@ const capture = getElement<HTMLButtonElement>('#capture');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const retakeButton = getElement<HTMLButtonElement>('#retakePhoto');
+const countUp = getElement<HTMLSpanElement>('#countUp');
+const guage = getElement<HTMLSpanElement>('#meter > div');
 const debug = getElement<HTMLSpanElement>('#debug');
 
 // Canvas Context
@@ -28,17 +31,20 @@ const ctx = (() => {
 
 const camera = new Camera(video);
 const photoModal = new PhotoModal(modal, capturedPhoto);
+const meter = new Meter();
 const deviceMotionHandler = new DeviceMotionHandler({
   onShake: totalAcceleration => {
     debug.textContent = `totalAcceleration: ${totalAcceleration.toFixed(5)}`;
-
-    if (totalAcceleration > shakeThreshold) {
+    meter.add(totalAcceleration);
+    if (meter.value > shakeThreshold) {
       const photoData = camera.capture(ctx);
       photoModal.show(photoData);
+      deviceMotionHandler.stopListening();
+      camera.stop();
+      meter.stop();
     }
   },
 });
-
 if (!deviceMotionHandler.isNeededPermission()) {
   deviceMotion.style.display = 'none';
 }
@@ -63,10 +69,29 @@ capture.addEventListener('click', () => {
   photoModal.show(photoData);
   deviceMotionHandler.stopListening();
   camera.stop();
+  meter.stop();
 });
 
 retakeButton.addEventListener('click', () => {
   photoModal.close();
   deviceMotionHandler.startListening();
   camera.start();
+  meter.start();
 });
+
+countUp.addEventListener('click', () => {
+  meter.add(50);
+  if (meter.value >= 100) {
+    const photoData = camera.capture(ctx);
+    photoModal.show(photoData);
+    deviceMotionHandler.stopListening();
+    camera.stop();
+    meter.stop();
+  }
+});
+
+const loop = () => {
+  requestAnimationFrame(loop);
+  guage.style.height = `${meter.value}%`;
+};
+loop();
