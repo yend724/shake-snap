@@ -5,10 +5,6 @@ import { DeviceMotionHandler } from './device-motion';
 import { Camera } from './camera';
 import { PhotoModal } from './PhotoModal';
 
-declare const DeviceMotionEvent: {
-  requestPermission: () => Promise<PermissionState>;
-};
-
 // DOM Elements
 const video = getElement<HTMLVideoElement>('#video');
 const canvas = getElement<HTMLCanvasElement>('#canvas');
@@ -43,8 +39,10 @@ const deviceMotionHandler = new DeviceMotionHandler({
       2
     )}, totalAcceleration: ${totalAcceleration.toFixed(2)}`;
 
-    const photoData = camera.capture(canvas, ctx);
-    photoModal.show(photoData);
+    if (totalAcceleration > shakeThreshold) {
+      const photoData = camera.capture(canvas, ctx);
+      photoModal.show(photoData);
+    }
   },
 });
 
