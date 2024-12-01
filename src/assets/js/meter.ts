@@ -3,20 +3,19 @@ export class MeterOperator {
   #limit = 0;
   #ratio = 0;
   #onUpdateValue: ({ value, ratio }: { value: number; ratio: number }) => void;
+  #onBaseLineReached: () => void;
   #onLimitReached: () => void;
   constructor(params: {
     limit: number;
     onUpdateValue: ({ value, ratio }: { value: number; ratio: number }) => void;
+    onBaseLineReached: () => void;
     onLimitReached: () => void;
   }) {
     this.#value = 0;
     this.#limit = params.limit;
     this.#onLimitReached = params.onLimitReached;
     this.#onUpdateValue = params.onUpdateValue;
-  }
-
-  add(value: number) {
-    this.set(this.#value + value);
+    this.#onBaseLineReached = params.onBaseLineReached;
   }
 
   set(value: number) {
@@ -27,6 +26,11 @@ export class MeterOperator {
       value: this.#value,
       ratio: this.#ratio,
     });
+
+    if (this.#ratio >= 30) {
+      this.#onBaseLineReached();
+    }
+
     if (this.#ratio >= 100) {
       this.#onLimitReached();
     }

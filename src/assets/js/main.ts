@@ -18,8 +18,8 @@ const deviceMotion = getElement<HTMLButtonElement>('#deviceMotion');
 const modal = getElement<HTMLDialogElement>('#photoModal');
 const capturedPhoto = getElement<HTMLImageElement>('#capturedPhoto');
 const recaptureButton = getElement<HTMLButtonElement>('#recapturePhoto');
-// const store = getElement<HTMLButtonElement>('#store');
 const meter = getElement<HTMLDivElement>('#meter');
+const description = getElement<HTMLParagraphElement>('#description');
 
 const video = createVideo();
 videoWrapper.appendChild(video);
@@ -33,13 +33,15 @@ const camera = new Camera({
   videoElement: video,
   onCameraStart: () => {
     startCamera.remove();
-    // store.disabled = false;
   },
 });
 const meterOperator = new MeterOperator({
   limit: shakeThreshold,
   onUpdateValue: ({ ratio }) => {
     meter.style.setProperty('--meter', `${ratio}%`);
+  },
+  onBaseLineReached: () => {
+    description.remove();
   },
   onLimitReached: () => {
     if (photoModal.isOpen()) {
@@ -74,7 +76,3 @@ recaptureButton.addEventListener('click', () => {
   photoModal.close();
   meterOperator.reset();
 });
-
-// store.addEventListener('click', () => {
-//   meterOperator.add(10);
-// });
