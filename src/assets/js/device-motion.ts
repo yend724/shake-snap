@@ -1,16 +1,22 @@
+import { IS_SHAKEN_TIMEOUT } from './constants';
+
 interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
   requestPermission: () => Promise<PermissionState>;
 }
 export class DeviceMotionHandler {
+  #isShaken = false;
   #onShake: (accelerationRatio: number) => void;
   #onPermissionGranted: () => void;
+  #onTImeOut: (isShaken: boolean) => void;
 
   constructor(params: {
     onShake: (accelerationRatio: number) => void;
     onPermissionGranted: () => void;
+    onTimeOut: (isShaken: boolean) => void;
   }) {
     this.#onShake = params.onShake;
     this.#onPermissionGranted = params.onPermissionGranted;
+    this.#onTImeOut = params.onTimeOut;
   }
 
   #getRequestPermission() {
@@ -52,6 +58,10 @@ export class DeviceMotionHandler {
       const z = acceleration?.z ?? 0;
       const totalAcceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
       this.#onShake(totalAcceleration);
+
+      if (totalAcceleration > 0) {
+        this.#isShaken = true;
+      }
     };
 
     window.addEventListener(
@@ -63,5 +73,9 @@ export class DeviceMotionHandler {
         passive: true,
       }
     );
+
+    setTimeout(() => {
+      this.#onTImeOut(this.#isShaken);
+    }, IS_SHAKEN_TIMEOUT);
   }
 }

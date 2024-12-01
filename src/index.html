@@ -13,16 +13,16 @@
         <h1>Shake Snap</h1>
       </header>
       <main class="relative grid place-content-center row-start-1 col-start-1">
-        <div id="videoWrapper" class="absolute size-full"></div>
+        <div id="video-wrapper" class="absolute size-full"></div>
         <div class="flex gap-2">
           <button
-            id="startCamera"
+            id="start-camera"
             class="relative px-2 py-1 bg-green-600 rounded-md"
           >
             カメラを起動
           </button>
           <button
-            id="deviceMotion"
+            id="device-motion-button"
             class="relative px-2 py-1 bg-green-600 rounded-md hidden"
           >
             モーションセンサーを有効にする
@@ -33,7 +33,7 @@
           class="absolute z-10 bottom-12 w-full px-2 grid gap-2 justify-center"
         >
           <p
-            class="text-base text-center animate-bounce rounded-md p-2 bg-black/50"
+            class="text-base font-semibold font-mono drop-shadow-2xl text-center animate-bounce"
           >
             振って写真を撮ろう!
           </p>
@@ -50,13 +50,13 @@
       </main>
     </div>
     <dialog
-      id="photoModal"
+      id="photo-modal"
       class="bg-transparent text-center"
-      aria-labelledby="capturedPhoto"
+      aria-labelledby="captured-photo"
     >
       <div class="grid gap-4">
         <img
-          id="capturedPhoto"
+          id="captured-photo"
           alt="撮影した写真"
           src=""
           class="w-full rounded-md"
@@ -65,7 +65,7 @@
         />
         <div>
           <button
-            id="recapturePhoto"
+            id="recapture-photo"
             class="px-2 py-1 bg-red-600 text-white rounded-md"
           >
             写真を撮り直す
