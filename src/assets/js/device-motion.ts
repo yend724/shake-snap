@@ -1,6 +1,6 @@
 import { IS_SHAKEN_TIMEOUT } from './constants';
 
-interface DeviceOrientationEventiOS extends DeviceOrientationEvent {
+interface DeviceMotionEventIOS extends DeviceMotionEvent {
   requestPermission: () => Promise<PermissionState>;
 }
 export class DeviceMotionHandler {
@@ -21,7 +21,7 @@ export class DeviceMotionHandler {
 
   #getRequestPermission() {
     const requestPermission = (
-      DeviceMotionEvent as unknown as DeviceOrientationEventiOS
+      DeviceMotionEvent as unknown as DeviceMotionEventIOS
     ).requestPermission;
     const isRequestNeeded = typeof requestPermission === 'function';
 
